@@ -1,36 +1,8 @@
 #!/bin/bash
 
-USERID=$(id -u) # to find the user id / -u for user
+source ./common.sh
 
-#Timestamp
-Timestamp=$(date +%F-%H-%M-%S)
-FileName=$(echo $0 | cut -d "." -f1)
-Logfile=/tmp/$FileName-$Timestamp.log
-#colour
-R='\e[0;31m'
-G='\e[0;32m'
-Y='\e[0;33m'
-Bl='\e[0;34m'
-NC='\e[0m'
-
-#validation or status function
-status() {
-    if [ $1 -ne 0 ]; then
-        echo -e "$bl $2 $NC installation.... $R failed $NC"
-        exit 1
-    else
-        echo -e " $bl $2 $NC installation..... $G sucessed $NC"
-    fi
-
-}
-
-#check root user or not
-if [ $USERID -ne 0 ]; then
-    echo -e "$R Please run with sudo user $NC"
-    exit 1 #manually exiting from the script
-else
-    echo -e "$G You are the super user $NC ...continuing to remaining steps"
-fi
+check_root
 
 dnf module disable nodejs -y &>>$Logfile
 status $? "Disbaled nodejs"
@@ -64,7 +36,7 @@ status $? "Excracted backend code"
 npm install &>>$Logfile
 status $? "Installing nodejs dependencies"
 
-cp /home/ec2-user/practice/backend.service /etc/systemd/system/backend.service &>>$Logfile
+cp /home/ec2-user/advance-shellscripting/backend.service /etc/systemd/system/backend.service &>>$Logfile
 status $? "coppied backend service"
 
 systemctl daemon-reload &>>$Logfile
