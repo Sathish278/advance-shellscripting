@@ -1,40 +1,23 @@
 #!/bin/bash
-Inst=$1
+
 source ./common.sh
 
- # which application has to install user has to give while executing the script
-#validation or status function
-
-#check root user or not
 check_root
 
-dnf list installed | grep -i $Inst &>>$Logfile
-if [ $? -eq 0 ]; then
-    echo -e "$G $Inst $NC already installed"
-    systemctl enable mysqld &>>$Logfile
-status $? "Enabling....$Inst"
-
-systemctl start mysqld &>>$Logfile
-status $? "Starting....$Inst"
-
-#sudo mysql_secure_installation --set-root-pass ExpenseApp@1 &>>"$Logfile"
-#status $? "Securing MySQL installation"
-echo -e "$R Please enter db passowrd... $NC"
+echo "Please enter DB password:"
 read -s mysql_root_password
-#Below code will be work as idempotent nature
- mysql -h db.sathishreddy.online -uroot -p${mysql_root_password} -e 'SHOW DATABASES;' &>>$Logfile
 
- if [ $? -ne 0 ]; then
-    mysql_secure_installation --set-root-pass ${mysql_root_password} &>>$Logfile
-    status $? "Securing MySQL installation"
-else 
-    echo -e " password already setup...$Y skipping $NC"
+dnf install mysql-server -y &>>$LOGFILE
 
-fi
-    exit 1
+systemctl enable mysqld &>>$LOGFILE
+
+systemctl start mysqld &>>$LOGFILE
+
+#Below code will be useful for idempotent nature
+mysql -h db.daws78s.online -uroot -p${mysql_root_password} -e 'show databases;' &>>$LOGFILE
+if [ $? -ne 0 ]
+then
+    mysql_secure_installation --set-root-pass ${mysql_root_password} &>>$LOGFILE
 else
-    echo -e "$R $Inst $NC need to be install"
-    dnf install $Inst -y &>>$Logfile
-    status $? "$Inst...installing"
+    echo -e "MySQL Root password is already setup...$Y SKIPPING $N"
 fi
-
