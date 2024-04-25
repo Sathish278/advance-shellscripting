@@ -1,7 +1,8 @@
 #!/bin/bash
+Inst=$1
 source ./common.sh
 
-Inst=$1 # which application has to install user has to give while executing the script
+ # which application has to install user has to give while executing the script
 #validation or status function
 
 #check root user or not
